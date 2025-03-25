@@ -1,9 +1,0 @@
-Algorithm for Average of three numbers
-
-=> Start the program
-=> Initialize a,b,c and average
-=> Add a,b,c and store in average
-=> divide the value in average and store again in the same
-=> Output the average
-=>End the program
-

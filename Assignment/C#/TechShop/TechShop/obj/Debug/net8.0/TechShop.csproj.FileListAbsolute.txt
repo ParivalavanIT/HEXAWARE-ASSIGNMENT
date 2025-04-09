@@ -1,0 +1,6 @@
+C:\Users\pariv\OneDrive\Desktop\HEXAWARE ASSIGNMENT\Assignment\C#\TechShop\TechShop\obj\Debug\net8.0\TechShop.csproj.AssemblyReference.cache
+C:\Users\pariv\OneDrive\Desktop\HEXAWARE ASSIGNMENT\Assignment\C#\TechShop\TechShop\obj\Debug\net8.0\TechShop.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\pariv\OneDrive\Desktop\HEXAWARE ASSIGNMENT\Assignment\C#\TechShop\TechShop\obj\Debug\net8.0\TechShop.AssemblyInfoInputs.cache
+C:\Users\pariv\OneDrive\Desktop\HEXAWARE ASSIGNMENT\Assignment\C#\TechShop\TechShop\obj\Debug\net8.0\TechShop.AssemblyInfo.cs
+C:\Users\pariv\OneDrive\Desktop\HEXAWARE ASSIGNMENT\Assignment\C#\TechShop\TechShop\obj\Debug\net8.0\TechShop.csproj.CoreCompileInputs.cache
+C:\Users\pariv\OneDrive\Desktop\HEXAWARE ASSIGNMENT\Assignment\C#\TechShop\TechShop\obj\Debug\net8.0\TechShop.sourcelink.json

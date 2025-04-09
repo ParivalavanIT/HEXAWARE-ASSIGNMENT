@@ -206,6 +206,13 @@ SELECT * FROM products WHERE stockQuantity < (SELECT AVG(stockQuantity) FROM pro
 SELECT * FROM customers WHERE customer_id IN (SELECT customer_id FROM orders 
 WHERE total_price > (SELECT AVG(total_price) FROM orders))
 
+SELECT * FROM customers 
+WHERE EXISTS (
+    SELECT 'x' FROM orders 
+    WHERE orders.customer_id = customers.customer_id
+    AND orders.total_price > (SELECT AVG(total_price) FROM orders)
+);
+
 --===================================
 --End
 --===================================

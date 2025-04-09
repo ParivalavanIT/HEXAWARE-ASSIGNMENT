@@ -8,221 +8,394 @@ namespace LoanApp
     {
         public void ApplyLoan(Loan loan)
         {
-            using (SqlConnection conn = DBUtil.GetDBConn())
+            Console.WriteLine("Loan Details:");
+            loan.PrintInformation();
+
+            Console.Write("Do you want to confirm the loan application? (Yes/No): ");
+            string confirmation = Console.ReadLine();
+
+            if (confirmation.Equals("Yes", StringComparison.OrdinalIgnoreCase))
             {
-                if (conn == null) return;
-
-                string query = @"INSERT INTO Loan (CustomerId, PrincipalAmount, InterestRate, LoanTerm, LoanType, LoanStatus)
-                                     VALUES (@CustomerId, @PrincipalAmount, @InterestRate, @LoanTerm, @LoanType, @LoanStatus)";
-
-                using (SqlCommand cmd = new SqlCommand(query, conn))
+                using (SqlConnection connection = DBUtil.GetDBConn())
                 {
-                    cmd.Parameters.AddWithValue("@CustomerId", loan.Customer.CustomerId);
-                    cmd.Parameters.AddWithValue("@PrincipalAmount", loan.PrincipalAmount);
-                    cmd.Parameters.AddWithValue("@InterestRate", loan.InterestRate);
-                    cmd.Parameters.AddWithValue("@LoanTerm", loan.LoanTerm);
-                    cmd.Parameters.AddWithValue("@LoanType", loan.LoanType);
-                    cmd.Parameters.AddWithValue("@LoanStatus", loan.LoanStatus); // Must be: Pending, Approved, Rejected
-
-                    try
+                    // First, check if the customer exists, if not, add the customer
+                    string checkCustomerQuery = "SELECT COUNT(*) FROM Customer WHERE customer_id = @CustomerId";
+                    using (SqlCommand checkCommand = new SqlCommand(checkCustomerQuery, connection))
                     {
-                        cmd.ExecuteNonQuery();
-                        Console.WriteLine("Loan successfully applied.");
-                    }
-                    catch (SqlException ex)
-                    {
-                        Console.WriteLine("Error while applying loan: " + ex.Message);
-                    }
-                }
-            }
-        }
+                        checkCommand.Parameters.AddWithValue("@CustomerId", loan.Customer.CustomerId);
+                        int customerExists = (int)checkCommand.ExecuteScalar();
 
-        public void GetAllLoan()
-        {
-            using (SqlConnection conn = DBUtil.GetDBConn())
-            {
-                if (conn == null) return;
-
-                string query = "SELECT * FROM Loan";
-
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                using (SqlDataReader reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        Console.WriteLine($"LoanId: {reader["LoanId"]}, CustomerId: {reader["CustomerId"]}, " +
-                                          $"Type: {reader["LoanType"]}, Status: {reader["LoanStatus"]}, " +
-                                          $"Amount: {reader["PrincipalAmount"]}, Term: {reader["LoanTerm"]} months");
-                    }
-                }
-            }
-        }
-
-        public Loan GetLoanById(int loanId)
-        {
-            using (SqlConnection conn = DBUtil.GetDBConn())
-            {
-                if (conn == null) return null;
-
-                string query = "SELECT * FROM Loan WHERE LoanId = @LoanId";
-
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@LoanId", loanId);
-
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        if (reader.Read())
+                        if (customerExists == 0)
                         {
-                            return new Loan
+                            // Insert customer into database
+                            string insertCustomerQuery = "INSERT INTO Customer (customer_id, name, email_address, phone_number, address, credit_score) " +
+                                                        "VALUES (@CustomerId, @Name, @Email, @Phone, @Address, @CreditScore)";
+                            using (SqlCommand customerCommand = new SqlCommand(insertCustomerQuery, connection))
                             {
-                                LoanId = loanId,
-                                Customer = null, // Assuming Customer object is fetched elsewhere
-                                PrincipalAmount = (decimal)reader["PrincipalAmount"],
-                                InterestRate = (decimal)reader["InterestRate"],
-                                LoanTerm = (int)reader["LoanTerm"],
-                                LoanType = reader["LoanType"].ToString(),
-                                LoanStatus = reader["LoanStatus"].ToString()
-                            };
+                                customerCommand.Parameters.AddWithValue("@CustomerId", loan.Customer.CustomerId);
+                                customerCommand.Parameters.AddWithValue("@Name", loan.Customer.Name);
+                                customerCommand.Parameters.AddWithValue("@Email", loan.Customer.EmailAddress);
+                                customerCommand.Parameters.AddWithValue("@Phone", loan.Customer.PhoneNumber);
+                                customerCommand.Parameters.AddWithValue("@Address", loan.Customer.Address);
+                                customerCommand.Parameters.AddWithValue("@CreditScore", loan.Customer.CreditScore);
+                                customerCommand.ExecuteNonQuery();
+                            }
                         }
-                        else
+                    }
+
+                    // Insert loan into database
+                    string insertLoanQuery = "INSERT INTO Loan (loan_id, customer_id, principal_amount, interest_rate, loan_term, loan_type, loan_status) " +
+                                            "VALUES (@LoanId, @CustomerId, @PrincipalAmount, @InterestRate, @LoanTerm, @LoanType, @LoanStatus)";
+                    using (SqlCommand loanCommand = new SqlCommand(insertLoanQuery, connection))
+                    {
+                        loanCommand.Parameters.AddWithValue("@LoanId", loan.LoanId);
+                        loanCommand.Parameters.AddWithValue("@CustomerId", loan.Customer.CustomerId);
+                        loanCommand.Parameters.AddWithValue("@PrincipalAmount", loan.PrincipalAmount);
+                        loanCommand.Parameters.AddWithValue("@InterestRate", loan.InterestRate);
+                        loanCommand.Parameters.AddWithValue("@LoanTerm", loan.LoanTerm);
+                        loanCommand.Parameters.AddWithValue("@LoanType", loan.LoanType);
+                        loanCommand.Parameters.AddWithValue("@LoanStatus", loan.LoanStatus);
+                        loanCommand.ExecuteNonQuery();
+                    }
+
+                    // Insert specific loan type information
+                    if (loan is HomeLoan homeLoan)
+                    {
+                        string insertHomeLoanQuery = "INSERT INTO HomeLoan (loan_id, property_address, property_value) " +
+                                                    "VALUES (@LoanId, @PropertyAddress, @PropertyValue)";
+                        using (SqlCommand homeLoanCommand = new SqlCommand(insertHomeLoanQuery, connection))
                         {
-                            throw new InvalidLoanException("Loan ID not found.");
+                            homeLoanCommand.Parameters.AddWithValue("@LoanId", homeLoan.LoanId);
+                            homeLoanCommand.Parameters.AddWithValue("@PropertyAddress", homeLoan.PropertyAddress);
+                            homeLoanCommand.Parameters.AddWithValue("@PropertyValue", homeLoan.PropertyValue);
+                            homeLoanCommand.ExecuteNonQuery();
                         }
                     }
+                    else if (loan is CarLoan carLoan)
+                    {
+                        string insertCarLoanQuery = "INSERT INTO CarLoan (loan_id, car_model, car_value) " +
+                                                  "VALUES (@LoanId, @CarModel, @CarValue)";
+                        using (SqlCommand carLoanCommand = new SqlCommand(insertCarLoanQuery, connection))
+                        {
+                            carLoanCommand.Parameters.AddWithValue("@LoanId", carLoan.LoanId);
+                            carLoanCommand.Parameters.AddWithValue("@CarModel", carLoan.CarModel);
+                            carLoanCommand.Parameters.AddWithValue("@CarValue", carLoan.CarValue);
+                            carLoanCommand.ExecuteNonQuery();
+                        }
+                    }
+
+                    Console.WriteLine("Loan application submitted successfully!");
                 }
             }
-        }
-
-        public void LoanRepayment(int loanId, decimal amount)
-        {
-            using (SqlConnection conn = DBUtil.GetDBConn())
+            else
             {
-                if (conn == null) return;
-
-                string checkQuery = "SELECT PrincipalAmount FROM Loan WHERE LoanId = @LoanId";
-
-                using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
-                {
-                    checkCmd.Parameters.AddWithValue("@LoanId", loanId);
-
-                    object result = checkCmd.ExecuteScalar();
-
-                    if (result == null)
-                        throw new InvalidLoanException("Loan ID not found.");
-
-                    decimal currentAmount = (decimal)result;
-                    decimal newAmount = currentAmount - amount;
-
-                    string updateQuery = "UPDATE Loan SET PrincipalAmount = @NewAmount WHERE LoanId = @LoanId";
-
-                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
-                    {
-                        updateCmd.Parameters.AddWithValue("@NewAmount", newAmount);
-                        updateCmd.Parameters.AddWithValue("@LoanId", loanId);
-                        updateCmd.ExecuteNonQuery();
-
-                        Console.WriteLine($"Repayment of {amount} done. Remaining balance: {newAmount}");
-                    }
-                }
+                Console.WriteLine("Loan application cancelled.");
             }
-        }
-
-        public void LoanStatus(int loanId)
-        {
-            using (SqlConnection conn = DBUtil.GetDBConn())
-            {
-                if (conn == null) return;
-
-                string query = "SELECT CreditScore FROM Customer WHERE CustomerId = (SELECT CustomerId FROM Loan WHERE LoanId = @LoanId)";
-
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@LoanId", loanId);
-
-                    object result = cmd.ExecuteScalar();
-
-                    if (result == null)
-                    {
-                        Console.WriteLine("Customer not found for this loan.");
-                        return;
-                    }
-
-                    int creditScore = (int)result;
-                    string status = creditScore >= 700 ? "Approved" : "Rejected";
-
-                    string updateQuery = "UPDATE Loan SET LoanStatus = @Status WHERE LoanId = @LoanId";
-
-                    using (SqlCommand updateCmd = new SqlCommand(updateQuery, conn))
-                    {
-                        updateCmd.Parameters.AddWithValue("@Status", status);
-                        updateCmd.Parameters.AddWithValue("@LoanId", loanId);
-                        updateCmd.ExecuteNonQuery();
-
-                        Console.WriteLine($"Loan status updated to: {status}");
-                    }
-                }
-            }
-        }
-
-        public decimal CalculateInterest(decimal principal, decimal rate, int term)
-        {
-            decimal interest = (principal * rate * term) / (100 * 12);
-            return decimal.Round(interest, 2);
         }
 
         public decimal CalculateInterest(int loanId)
         {
             Loan loan = GetLoanById(loanId);
-            if (loan == null) throw new InvalidLoanException("Loan ID not found.");
             return CalculateInterest(loan.PrincipalAmount, loan.InterestRate, loan.LoanTerm);
         }
 
-        public decimal CalculateEMI(decimal principal, decimal rate, int term)
+        public decimal CalculateInterest(decimal principalAmount, decimal interestRate, int loanTerm)
         {
-            decimal monthlyRate = rate / (12 * 100);
-            decimal emi = (principal * monthlyRate * (decimal)Math.Pow(1 + (double)monthlyRate, term)) /
-                          (decimal)(Math.Pow(1 + (double)monthlyRate, term) - 1);
-            return decimal.Round(emi, 2);
+            // Interest = (Principal Amount * Interest Rate * Loan Tenure) / 12
+            return (principalAmount * interestRate * loanTerm) / 1200;
+        }
+
+        public void LoanStatus(int loanId)
+        {
+            using (SqlConnection connection = DBUtil.GetDBConn())
+            {
+                string query = "SELECT c.credit_score, l.loan_status FROM Loan l " +
+                              "JOIN Customer c ON l.customer_id = c.customer_id " +
+                              "WHERE l.loan_id = @LoanId";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@LoanId", loanId);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            int creditScore = reader.GetInt32(0);
+                            string currentStatus = reader.GetString(1);
+                            reader.Close();
+
+                            string newStatus = creditScore > 650 ? "Approved" : "Rejected";
+
+                            // Update the loan status in the database
+                            string updateQuery = "UPDATE Loan SET loan_status = @Status WHERE loan_id = @LoanId";
+                            using (SqlCommand updateCommand = new SqlCommand(updateQuery, connection))
+                            {
+                                updateCommand.Parameters.AddWithValue("@Status", newStatus);
+                                updateCommand.Parameters.AddWithValue("@LoanId", loanId);
+                                updateCommand.ExecuteNonQuery();
+                            }
+
+                            Console.WriteLine($"Loan (ID: {loanId}) is {newStatus}. Credit Score: {creditScore}");
+                        }
+                        else
+                        {
+                            throw new InvalidLoanException();
+                        }
+                    }
+                }
+            }
         }
 
         public decimal CalculateEMI(int loanId)
         {
             Loan loan = GetLoanById(loanId);
-            if (loan == null) throw new InvalidLoanException("Loan ID not found.");
             return CalculateEMI(loan.PrincipalAmount, loan.InterestRate, loan.LoanTerm);
         }
 
-        public List<Loan> GetAllLoans()
+        public decimal CalculateEMI(decimal principalAmount, decimal interestRate, int loanTerm)
+        {
+            // EMI = [P * R * (1+R)^N] / [(1+R)^N-1]
+            // R: Monthly Interest Rate (Annual Interest Rate / 12 / 100)
+            decimal r = interestRate / 12 / 100;
+            decimal numerator = principalAmount * r * (decimal)Math.Pow((double)(1 + r), loanTerm);
+            decimal denominator = (decimal)Math.Pow((double)(1 + r), loanTerm) - 1;
+
+            return numerator / denominator;
+        }
+
+        public void LoanRepayment(int loanId, decimal amount)
+        {
+            decimal emiAmount = CalculateEMI(loanId);
+
+            if (amount < emiAmount)
+            {
+                Console.WriteLine($"Payment rejected. Amount ({amount:C}) is less than a single EMI ({emiAmount:C}).");
+                return;
+            }
+
+            int noOfEmiPaid = (int)(amount / emiAmount);
+            decimal totalPaid = noOfEmiPaid * emiAmount;
+
+            using (SqlConnection connection = DBUtil.GetDBConn())
+            {
+                // Here you would typically update some payment tracking table
+                // For this example, we'll just print the details
+                Console.WriteLine($"Payment of {totalPaid:C} accepted.");
+                Console.WriteLine($"Number of EMIs paid: {noOfEmiPaid}");
+                Console.WriteLine($"EMI amount: {emiAmount:C}");
+            }
+        }
+
+        public List<Loan> GetAllLoan()
         {
             List<Loan> loans = new List<Loan>();
 
-            using (SqlConnection conn = DBUtil.GetDBConn())
+            using (SqlConnection connection = DBUtil.GetDBConn())
             {
-                if (conn == null) return loans;
+                string query = "SELECT l.*, c.* FROM Loan l JOIN Customer c ON l.customer_id = c.customer_id";
 
-                string query = "SELECT * FROM Loan";
-
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    while (reader.Read())
+                    using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        loans.Add(new Loan
+                        while (reader.Read())
                         {
-                            LoanId = (int)reader["LoanId"],
-                            Customer = null, // Assuming Customer object is fetched elsewhere
-                            PrincipalAmount = (decimal)reader["PrincipalAmount"],
-                            InterestRate = (decimal)reader["InterestRate"],
-                            LoanTerm = (int)reader["LoanTerm"],
-                            LoanType = reader["LoanType"].ToString(),
-                            LoanStatus = reader["LoanStatus"].ToString()
-                        });
+                            // Extract loan details
+                            int loanId = reader.GetInt32(reader.GetOrdinal("loan_id"));
+                            decimal principalAmount = reader.GetDecimal(reader.GetOrdinal("principal_amount"));
+                            decimal interestRate = reader.GetDecimal(reader.GetOrdinal("interest_rate"));
+                            int loanTerm = reader.GetInt32(reader.GetOrdinal("loan_term"));
+                            string loanType = reader.GetString(reader.GetOrdinal("loan_type"));
+                            string loanStatus = reader.GetString(reader.GetOrdinal("loan_status"));
+
+                            // Extract customer details
+                            int customerId = reader.GetInt32(reader.GetOrdinal("customer_id"));
+                            string name = reader.GetString(reader.GetOrdinal("name"));
+                            string emailAddress = reader.GetString(reader.GetOrdinal("email_address"));
+                            string phoneNumber = reader.GetString(reader.GetOrdinal("phone_number"));
+                            string address = reader.GetString(reader.GetOrdinal("address"));
+                            int creditScore = reader.GetInt32(reader.GetOrdinal("credit_score"));
+
+                            // Create customer object
+                            Customer customer = new Customer(customerId, name, emailAddress, phoneNumber, address, creditScore);
+
+                            // Create base loan object
+                            Loan loan = new Loan(loanId, customer, principalAmount, interestRate, loanTerm, loanType);
+                            loan.LoanStatus = loanStatus;
+
+                            loans.Add(loan);
+                        }
+                    }
+                }
+
+                // Fetch specific details for HomeLoan and CarLoan
+                foreach (Loan loan in loans)
+                {
+                    if (loan.LoanType == "HomeLoan")
+                    {
+                        string homeLoanQuery = "SELECT * FROM HomeLoan WHERE loan_id = @LoanId";
+                        using (SqlCommand command = new SqlCommand(homeLoanQuery, connection))
+                        {
+                            command.Parameters.AddWithValue("@LoanId", loan.LoanId);
+                            using (SqlDataReader reader = command.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    string propertyAddress = reader.GetString(reader.GetOrdinal("property_address"));
+                                    int propertyValue = reader.GetInt32(reader.GetOrdinal("property_value"));
+
+                                    HomeLoan homeLoan = new HomeLoan(
+                                        loan.LoanId, loan.Customer, loan.PrincipalAmount,
+                                        loan.InterestRate, loan.LoanTerm, propertyAddress, propertyValue
+                                    );
+                                    homeLoan.LoanStatus = loan.LoanStatus;
+
+                                    // Replace the base loan with the home loan
+                                    int index = loans.IndexOf(loan);
+                                    loans[index] = homeLoan;
+                                }
+                            }
+                        }
+                    }
+                    else if (loan.LoanType == "CarLoan")
+                    {
+                        string carLoanQuery = "SELECT * FROM CarLoan WHERE loan_id = @LoanId";
+                        using (SqlCommand command = new SqlCommand(carLoanQuery, connection))
+                        {
+                            command.Parameters.AddWithValue("@LoanId", loan.LoanId);
+                            using (SqlDataReader reader = command.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    string carModel = reader.GetString(reader.GetOrdinal("car_model"));
+                                    int carValue = reader.GetInt32(reader.GetOrdinal("car_value"));
+
+                                    CarLoan carLoan = new CarLoan(
+                                        loan.LoanId, loan.Customer, loan.PrincipalAmount,
+                                        loan.InterestRate, loan.LoanTerm, carModel, carValue
+                                    );
+                                    carLoan.LoanStatus = loan.LoanStatus;
+
+                                    // Replace the base loan with the car loan
+                                    int index = loans.IndexOf(loan);
+                                    loans[index] = carLoan;
+                                }
+                            }
+                        }
                     }
                 }
             }
 
+            // Print all loans
+            foreach (Loan loan in loans)
+            {
+                loan.PrintInformation();
+                Console.WriteLine("----------------------------");
+            }
+
             return loans;
         }
+
+        public Loan GetLoanById(int loanId)
+        {
+            using (SqlConnection connection = DBUtil.GetDBConn())
+            {
+                string query = "SELECT l.*, c.* FROM Loan l JOIN Customer c ON l.customer_id = c.customer_id WHERE l.loan_id = @LoanId";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@LoanId", loanId);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            // Extract loan details
+                            decimal principalAmount = reader.GetDecimal(reader.GetOrdinal("principal_amount"));
+                            decimal interestRate = reader.GetDecimal(reader.GetOrdinal("interest_rate"));
+                            int loanTerm = reader.GetInt32(reader.GetOrdinal("loan_term"));
+                            string loanType = reader.GetString(reader.GetOrdinal("loan_type"));
+                            string loanStatus = reader.GetString(reader.GetOrdinal("loan_status"));
+
+                            // Extract customer details
+                            int customerId = reader.GetInt32(reader.GetOrdinal("customer_id"));
+                            string name = reader.GetString(reader.GetOrdinal("name"));
+                            string emailAddress = reader.GetString(reader.GetOrdinal("email_address"));
+                            string phoneNumber = reader.GetString(reader.GetOrdinal("phone_number"));
+                            string address = reader.GetString(reader.GetOrdinal("address"));
+                            int creditScore = reader.GetInt32(reader.GetOrdinal("credit_score"));
+
+                            // Create customer object
+                            Customer customer = new Customer(customerId, name, emailAddress, phoneNumber, address, creditScore);
+
+                            // Create base loan object
+                            Loan loan = new Loan(loanId, customer, principalAmount, interestRate, loanTerm, loanType);
+                            loan.LoanStatus = loanStatus;
+
+                            reader.Close();
+
+                            // Fetch specific details for HomeLoan and CarLoan
+                            if (loanType == "HomeLoan")
+                            {
+                                string homeLoanQuery = "SELECT * FROM HomeLoan WHERE loan_id = @LoanId";
+                                using (SqlCommand homeLoanCommand = new SqlCommand(homeLoanQuery, connection))
+                                {
+                                    homeLoanCommand.Parameters.AddWithValue("@LoanId", loanId);
+                                    using (SqlDataReader homeLoanReader = homeLoanCommand.ExecuteReader())
+                                    {
+                                        if (homeLoanReader.Read())
+                                        {
+                                            string propertyAddress = homeLoanReader.GetString(homeLoanReader.GetOrdinal("property_address"));
+                                            int propertyValue = homeLoanReader.GetInt32(homeLoanReader.GetOrdinal("property_value"));
+
+                                            HomeLoan homeLoan = new HomeLoan(
+                                                loanId, customer, principalAmount,
+                                                interestRate, loanTerm, propertyAddress, propertyValue
+                                            );
+                                            homeLoan.LoanStatus = loanStatus;
+
+                                            loan = homeLoan;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (loanType == "CarLoan")
+                            {
+                                string carLoanQuery = "SELECT * FROM CarLoan WHERE loan_id = @LoanId";
+                                using (SqlCommand carLoanCommand = new SqlCommand(carLoanQuery, connection))
+                                {
+                                    carLoanCommand.Parameters.AddWithValue("@LoanId", loanId);
+                                    using (SqlDataReader carLoanReader = carLoanCommand.ExecuteReader())
+                                    {
+                                        if (carLoanReader.Read())
+                                        {
+                                            string carModel = carLoanReader.GetString(carLoanReader.GetOrdinal("car_model"));
+                                            int carValue = carLoanReader.GetInt32(carLoanReader.GetOrdinal("car_value"));
+
+                                            CarLoan carLoan = new CarLoan(
+                                                loanId, customer, principalAmount,
+                                                interestRate, loanTerm, carModel, carValue
+                                            );
+                                            carLoan.LoanStatus = loanStatus;
+
+                                            loan = carLoan;
+                                        }
+                                    }
+                                }
+                            }
+
+                            loan.PrintInformation();
+                            return loan;
+                        }
+                        else
+                        {
+                            throw new InvalidLoanException();
+                        }
+                    }
+                }
+            }
+        }
     }
+
 }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\pariv\\OneDrive\\Desktop\\HEXAWARE ASSIGNMENT\\Assignment\\C#\\LoanApp\\LoanApp.csproj": {}
+    "C:\\Users\\pariv\\OneDrive\\Desktop\\HEXAWARE ASSIGNMENT\\Code-Challenges\\LoanApp\\LoanApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\pariv\\OneDrive\\Desktop\\HEXAWARE ASSIGNMENT\\Assignment\\C#\\LoanApp\\LoanApp.csproj": {
+    "C:\\Users\\pariv\\OneDrive\\Desktop\\HEXAWARE ASSIGNMENT\\Code-Challenges\\LoanApp\\LoanApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\pariv\\OneDrive\\Desktop\\HEXAWARE ASSIGNMENT\\Assignment\\C#\\LoanApp\\LoanApp.csproj",
+        "projectUniqueName": "C:\\Users\\pariv\\OneDrive\\Desktop\\HEXAWARE ASSIGNMENT\\Code-Challenges\\LoanApp\\LoanApp.csproj",
         "projectName": "LoanApp",
-        "projectPath": "C:\\Users\\pariv\\OneDrive\\Desktop\\HEXAWARE ASSIGNMENT\\Assignment\\C#\\LoanApp\\LoanApp.csproj",
+        "projectPath": "C:\\Users\\pariv\\OneDrive\\Desktop\\HEXAWARE ASSIGNMENT\\Code-Challenges\\LoanApp\\LoanApp.csproj",
         "packagesPath": "C:\\Users\\pariv\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\pariv\\OneDrive\\Desktop\\HEXAWARE ASSIGNMENT\\Assignment\\C#\\LoanApp\\obj\\",
+        "outputPath": "C:\\Users\\pariv\\OneDrive\\Desktop\\HEXAWARE ASSIGNMENT\\Code-Challenges\\LoanApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

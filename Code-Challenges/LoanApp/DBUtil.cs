@@ -5,22 +5,20 @@ namespace LoanApp
 {
     public class DBUtil
     {
-        private static string connectionString = @"Server=RAVEN\SQLEXPRESS;Database=LoanDB;Trusted_Connection=True;";
-        // Example: @"Server=.\SQLEXPRESS;Database=LoanDB;Trusted_Connection=True;"
+        private static readonly string connectionString = "Data Source=RAVEN\\SQLEXPRESS;Initial Catalog=LoanDB;Integrated Security=True";
 
         public static SqlConnection GetDBConn()
         {
+            SqlConnection connection = new SqlConnection(connectionString);
             try
             {
-                SqlConnection conn = new SqlConnection(connectionString);
-                conn.Open();
-                Console.WriteLine("Database connection established successfully.");
-                return conn;
+                connection.Open();
+                return connection;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to connect to the database: " + ex.Message);
-                return null;
+                Console.WriteLine($"Database connection error: {ex.Message}");
+                throw;
             }
         }
     }

@@ -1,26 +1,81 @@
-﻿public class Customer
+﻿using System;
+
+
+
+namespace LoanApp{
+public class Customer
 {
-    public int CustomerId { get; set; }
-    public string Name { get; set; }
-    public string EmailAddress { get; set; }
-    public string PhoneNumber { get; set; }
-    public string Address { get; set; }
-    public int CreditScore { get; set; }
+    private int customerId;
+    private string name;
+    private string emailAddress;
+    private string phoneNumber;
+    private string address;
+    private int creditScore;
 
-    public Customer() { }
-
-    public Customer(int customerId, string name, string email, string phone, string address, int creditScore)
+    // Default constructor
+    public Customer()
     {
-        CustomerId = customerId;
-        Name = name;
-        EmailAddress = email;
-        PhoneNumber = phone;
-        Address = address;
-        CreditScore = creditScore;
     }
 
-    public void PrintInfo()
+    // Overloaded constructor with parameters
+    public Customer(int customerId, string name, string emailAddress, string phoneNumber, string address, int creditScore)
     {
-        Console.WriteLine($"ID: {CustomerId}, Name: {Name}, Email: {EmailAddress}, Phone: {PhoneNumber}, Address: {Address}, Credit Score: {CreditScore}");
+        this.customerId = customerId;
+        this.name = name;
+        this.emailAddress = emailAddress;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+        this.creditScore = creditScore;
     }
+
+    // Getters and Setters
+    public int CustomerId
+    {
+        get { return customerId; }
+        set { customerId = value; }
+    }
+
+    public string Name
+    {
+        get { return name; }
+        set { name = value; }
+    }
+
+    public string EmailAddress
+    {
+        get { return emailAddress; }
+        set { emailAddress = value; }
+    }
+
+    public string PhoneNumber
+    {
+        get { return phoneNumber; }
+        set { phoneNumber = value; }
+    }
+
+    public string Address
+    {
+        get { return address; }
+        set { address = value; }
+    }
+
+    public int CreditScore
+    {
+        get { return creditScore; }
+        set { creditScore = value; }
+    }
+
+    // Method to print all information of attributes
+    public void PrintInformation()
+    {
+        Console.WriteLine("Customer Information:");
+        Console.WriteLine($"Customer ID: {customerId}");
+        Console.WriteLine($"Name: {name}");
+        Console.WriteLine($"Email: {emailAddress}");
+        Console.WriteLine($"Phone: {phoneNumber}");
+        Console.WriteLine($"Address: {address}");
+        Console.WriteLine($"Credit Score: {creditScore}");
+    }
+}
+
 }

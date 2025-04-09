@@ -9,8 +9,11 @@ using TechShop;
 
 namespace ElectronicGadgetsTechShop.Services
 {
+    // Service class that handles customer management operations
     public class CustomerService : ICustomerService
     {
+        // Registers a new customer in the system
+        // Throws ArgumentNullException when customer object is null
         public void RegisterCustomer(Customers customer)
         {
             if (customer == null)

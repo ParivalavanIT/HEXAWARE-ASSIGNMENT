@@ -10,24 +10,30 @@ using static TechShop.Exceptions.ExceptionHandling;
 
 namespace TechShop.Models
 {
+    // Class represents individual line items within an order
+    // Responsible for managing product quantities, pricing, and discounts for each order item
     public class OrderDetails
     {
-
-        //Attributes
-
+        // Unique identifier for this order detail entry
         private int order_details_id { get; set; }
 
-        // adding composition for OrderDetails with products and orders tables..
-
+        // Reference to the parent order containing this detail
         private Orders _orders { get; set; }
+        
+        // Reference to the product being ordered
         private Products _products { get; set; }
         public Products GetProduct()
         {
             return _products;
         }
+
+        // Number of units ordered for this product
         private int quantity { get; set; }
+        
+        // Percentage discount applied to this item (0-100)
         private double discount { get; set; } = 0;
 
+        // Property to validate and ensure positive order quantities
         public int orderquantity
         {
             get { return quantity; }
@@ -36,12 +42,12 @@ namespace TechShop.Models
                 if (value < 0)
                 {
                     throw new InsufficientStockException("Warning! Quantity must be Positive");
-
                 }
                 else quantity = value;
             }
         }
 
+        // Property to validate and manage discount percentage between 0-100
         public double Discount
         {
             get { return discount; }
@@ -55,16 +61,13 @@ namespace TechShop.Models
             }
         }
 
-
-        //getter methods for database
+        // Database accessor methods for retrieving order detail information
         public int GetOrderDetailId() => order_details_id;
         public int GetQuantity() => quantity;
         public int GetOrderId() => _orders.order_id;
         public int GetProductId() => _products.GetProductId();
 
-
-
-        //Parameterized Constructor
+        // Constructor initializes a new order detail with required information
         public OrderDetails(int order_details_id, Orders _orders, Products _products, int quantity)
         {
             this.order_details_id = order_details_id;
@@ -78,14 +81,13 @@ namespace TechShop.Models
             orderquantity = quantity;
         }
 
-        //Methods
-        // To calculate subtotal
+        // Calculates the final price for this line item after applying any discounts
         public double CalculateSubtotal()
         {
             return quantity * _products.productprice * (1 - discount / 100);
         }
 
-        // To get info about order details
+        // Displays detailed information about this order item including pricing
         public void GetOrderDetailInfo()
         {
             Console.WriteLine("------------ Order Details ------------");
@@ -96,10 +98,9 @@ namespace TechShop.Models
             Console.WriteLine($"Discount   : {discount}%");
             Console.WriteLine($"Subtotal   : {CalculateSubtotal()}");
             Console.WriteLine("--------------------------------------");
-
         }
 
-        // To update quantity of products
+        // Updates the quantity for this order item with validation
         public void UpdateQuantity(int new_quantity)
         {
             try
@@ -113,7 +114,7 @@ namespace TechShop.Models
             }
         }
 
-        // To apply a discount
+        // Applies a validated discount percentage to this order item
         public void AddDiscount(double discountPercentage)
         {
             try

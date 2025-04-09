@@ -1,52 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
-namespace TechShop.Exceptions
+﻿// Custom exception handling class for TechShop application
+public class ExceptionHandling
 {
-    class ExceptionHandling
+    // Base class for all custom exceptions in TechShop
+    public class TechShopException : Exception
     {
-        public class InvalidDataException : Exception
-        {
-            public InvalidDataException(string message) : base(message)
-            {
-            }
-        }
+        public TechShopException(string message) : base(message) { }
+    }
 
-        public class PaymentFailedException : Exception
-        {
-            public PaymentFailedException(string message) : base(message)
-            {
-            }
-        }
+    // Exception thrown when database operations fail
+    public class DatabaseSqlException : TechShopException
+    {
+        public DatabaseSqlException(string message) : base(message) { }
+    }
 
-        public class IncompleteOrderException : Exception
-        {
-            public IncompleteOrderException(string message) : base(message)
-            {
-            }
-        }
+    // Exception thrown when input data is invalid
+    public class InvalidDataException : TechShopException
+    {
+        public InvalidDataException(string message) : base(message) { }
+    }
 
-        public class DatabaseSqlException : Exception
-        {
-            public DatabaseSqlException(string message) : base(message)
-            {
-            }
-        }
+    // Exception thrown when authentication fails
+    public class AuthenticationException : TechShopException
+    {
+        public AuthenticationException(string message) : base(message) { }
+    }
 
-        public class InsufficientStockException : Exception
-        {
-            public InsufficientStockException(string message) : base(message) { }
-        }
+    // Exception thrown when payment processing fails
+    public class PaymentException : TechShopException
+    {
+        public PaymentException(string message) : base(message) { }
+    }
 
+    // Exception thrown when order processing fails
+    public class OrderException : TechShopException
+    {
+        public OrderException(string message) : base(message) { }
+    }
 
-        public static bool IsValidEmail(string email)
-        {
-            string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-            return Regex.IsMatch(email, emailPattern);
-        }
+    // Validates email format using regular expression
+    // Returns true if email format is valid, false otherwise
+    public static bool ValidateEmail(string email)
+    {
+        string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+        return System.Text.RegularExpressions.Regex.IsMatch(email, pattern);
     }
 }

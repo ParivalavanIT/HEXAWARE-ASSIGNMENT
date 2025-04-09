@@ -11,8 +11,13 @@ using TechShop.Exceptions;
 
 namespace ElectronicGadgetsTechShop.Services
 {
+    // Service class that handles order management operations
     public class OrderService : IOrderService
     {
+        // Places a new order in the system
+        // Returns true if order was successfully placed, false otherwise
+        // Throws IncompleteOrderException when order is null or incomplete
+        // Throws DatabaseSqlException when database operation fails
         public bool PlaceOrder(Orders order)
         {
             try
@@ -30,6 +35,8 @@ namespace ElectronicGadgetsTechShop.Services
             }
         }
 
+        // Cancels an existing order
+        // Throws DatabaseSqlException when database operation fails
         public void CancelOrder(int orderId)
         {
             try
@@ -42,8 +49,9 @@ namespace ElectronicGadgetsTechShop.Services
             }
         }
 
-
-
+        // Retrieves the status of all orders for a specific customer
+        // Returns a list of order status strings for the customer
+        // Throws DatabaseSqlException when database operation fails
         public List<string> GetOrderStatusByCustomerId(int customerId)
         {
             try
@@ -66,6 +74,7 @@ namespace ElectronicGadgetsTechShop.Services
             throw new NotImplementedException();
         }
 
+        // Removes all cancelled orders from the system
         public void RemoveCancelledOrders()
         {
             DataBaseConnector.RemoveCancelledOrders();

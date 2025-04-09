@@ -11,8 +11,15 @@ using TechShop.Exceptions;
 
 namespace ElectronicGadgetsTechShop.Services
 {
+    // Service class that handles payment processing and recording operations
     public class PaymentService : IPaymentService
     {
+        // Processes a payment transaction and records it in the database
+        // Validates payment data and amount before processing
+        // Returns true if payment was successfully processed
+        // Throws InvalidDataException for null payment or invalid amount
+        // Throws PaymentFailedException if payment processing fails
+        // Throws DatabaseSqlException for database operation errors
         public bool ProcessPayment(PaymentRecord payment)
         {
             try
@@ -41,6 +48,8 @@ namespace ElectronicGadgetsTechShop.Services
             }
         }
 
+        // Records a completed payment transaction in the database
+        // This method is typically called after successful payment processing
         public void RecordPayment(PaymentRecord payment)
         {
             DataBaseConnector.RecordPayment(payment);

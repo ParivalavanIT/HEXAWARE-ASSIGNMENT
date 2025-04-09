@@ -9,12 +9,20 @@ using TechShop.Models;
 
 namespace TechShop.Models
 {
+    // Represents a customer in the TechShop system, managing customer information and related operations
+    // Handles customer data validation, profile management, and order tracking
     public class Customers
     {
-        //Attributes..
+        // Unique identifier for the customer in the database
         private int customer_id { get; set; }
+        
+        // Customer's first name, required field
         private string first_name { get; set; }
+        
+        // Customer's last name, optional field
         private string? last_name { get; set; }
+        
+        // Customer's email address, validated for correct format
         private string? cust_email { get; set; }
 
         public string custemail
@@ -30,7 +38,10 @@ namespace TechShop.Models
             }
         }
 
+        // Customer's phone number, must be exactly 10 digits
         private string cust_phone;
+        
+        // Property to validate and manage phone number format
         public string custphone
         {
             get { return cust_phone; }
@@ -43,9 +54,10 @@ namespace TechShop.Models
                 cust_phone = value;
             }
         }
+        // Customer's physical address for shipping and billing
         private string? cust_address { get; set; }
 
-        //Get functions for access in database
+        // Database accessor methods for customer attributes
         public int GetCustomerId() => customer_id;
         public string GetFirstName() => first_name;
         public string GetLastName() => last_name;
@@ -66,8 +78,10 @@ namespace TechShop.Models
 
         }
 
-        //Methods
-        // To calcuate total orders present
+        // Calculates the total number of orders placed by this customer
+        // Parameters:
+        //   orders: List of all orders to check against this customer
+        // Returns: Total number of orders for this customer
         public int CalculateTotalOrders(List<Orders> orders)
         {
             //return orders.Count(sql logic here);
@@ -87,7 +101,15 @@ namespace TechShop.Models
 
         }
 
-        // To update customer information
+        // Updates customer profile information with provided values
+        // Only updates fields that are provided (non-null)
+        // Maintains data validation rules for email and phone number
+        // Parameters:
+        //   first_name: New first name (optional)
+        //   last_name: New last name (optional)
+        //   cust_email: New email address (optional, validated)
+        //   cust_phone: New phone number (optional, must be 10 digits)
+        //   cust_address: New physical address (optional)
         public void UpdateCustomerInfo(string? first_name = null, string? last_name = null, string? cust_email = null, string? cust_phone = null, string? cust_address = null)
         {
             if (!string.IsNullOrEmpty(first_name)) this.first_name = first_name;

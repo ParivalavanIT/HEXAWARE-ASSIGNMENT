@@ -11,8 +11,11 @@ using TechShop.Exceptions;
 
 namespace ElectronicGadgetsTechShop.Services
 {
+    // Service class implementing inventory management operations
     public class InventoryService : IInventoryService
     {
+        // Displays the current inventory status for all products
+        // Throws DatabaseSqlException when database operation fails
         public void ViewInventory()
         {
             try
@@ -25,6 +28,14 @@ namespace ElectronicGadgetsTechShop.Services
             }
         }
 
+        // Updates the quantity of a product in inventory
+        // Parameters:
+        //   productId: The unique identifier of the product
+        //   quantity: The new quantity to set
+        // Returns: True if update was successful, false otherwise
+        // Throws: 
+        //   - InvalidDataException when quantity is invalid
+        //   - DatabaseSqlException when database operation fails
         public bool UpdateInventory(int productId, int quantity)
         {
             try
@@ -42,6 +53,10 @@ namespace ElectronicGadgetsTechShop.Services
             }
         }
 
+        // Adds a new inventory record for a product
+        // Parameters:
+        //   productId: The unique identifier of the product
+        //   inventory: The inventory details to add
         public void AddToInventory(int productId, Inventory inventory)
         {
             throw new NotImplementedException();

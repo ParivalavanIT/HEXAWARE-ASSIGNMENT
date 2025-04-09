@@ -1,83 +1,69 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TechShop.Models
+﻿// Class for managing product information and pricing in the TechShop system
+public class Products
 {
-    public class Products
+    // Unique ID for this product
+    private int product_id { get; set; }
+
+    // Name of the product
+    public string product_name { get; set; }
+
+    // Product description
+    private string product_description { get; set; }
+
+    // Product category
+    private string Category { get; set; }
+
+    // Product base price
+    private double product_price;
+
+    // Property to validate and ensure non-negative pricing
+    public double productprice
     {
-        // Attributes
-        private int product_id { get; set; }
-
-        public string product_name { get; set; }
-        private string product_description { get; set; }
-        private string Category { get; set; }
-        private double product_price;
-
-
-        //product price should not have -ve values..
-        public double productprice
+        get { return product_price; }
+        set
         {
-            get { return product_price; }
-            set
+            if (value < 0)
             {
-                if (value < 0)
-                {
-                    throw new InvalidDataException("Warning! Negative value is not allowed");
-
-                }
-                else product_price = value;
+                throw new InvalidDataException("Product price cannot be negative.");
             }
+            product_price = value;
         }
+    }
 
-        //getter methods for database connectiviy
-        public int GetProductId() => product_id;
-        public string GetProductName() => product_name;
-        public string GetProductDesc() => product_description;
-        public string GetCategory() => Category;
-        public double GetProductPrice() => productprice;
+    // Methods to access product data
+    public int GetProductId() => product_id;
+    public string GetProductName() => product_name;
+    public string GetProductDescription() => product_description;
+    public string GetCategory() => Category;
 
-        //parametrized constructor
+    // Initialize product with required information
+    public Products(int product_id, string product_name, string product_description, string Category, double product_price)
+    {
+        this.product_id = product_id;
+        this.product_name = product_name;
+        this.product_description = product_description;
+        this.Category = Category;
+        this.productprice = product_price;
+    }
 
-        public Products(int product_id, string product_name, string product_description, string Category, double product_price)
-        {
-            this.product_id = product_id;
-            this.product_name = product_name;
-            this.product_description = product_description;
-            this.Category = Category;
-            this.product_price = product_price;
-        }
+    // Get formatted product information
+    public string GetProductDetails()
+    {
+        return $"Product ID: {product_id}\nName: {product_name}\nDescription: {product_description}\nCategory: {Category}\nPrice: {productprice:C}";
+    }
 
+    // Update product information with validation
+    public void UpdateProduct(string? product_name = null, string? product_description = null, string? Category = null, double? product_price = null)
+    {
+        if (!string.IsNullOrEmpty(product_name)) this.product_name = product_name;
+        if (!string.IsNullOrEmpty(product_description)) this.product_description = product_description;
+        if (!string.IsNullOrEmpty(Category)) this.Category = Category;
+        if (product_price.HasValue) this.productprice = product_price.Value;
+    }
 
-
-        //Methods
-
-        // To get product information
-        public string GetProductDetails()
-        {
-            return $"ID: {product_id}, Name: {product_name}, Description: {product_description}, Category: {Category}, Price: {product_price}";
-        }
-
-
-
-        // To update product infor
-        public void UpdateProductInfo(string? product_name = null, string? product_description = null, double? product_price = null)
-        {
-            if (!string.IsNullOrEmpty(product_name)) this.product_name = product_name;
-            if (!string.IsNullOrEmpty(product_description)) this.product_description = product_description;
-            if (product_price != null) this.product_price = Convert.ToDouble(product_price);
-
-            Console.WriteLine("Product information updated successfully!");
-        }
-
-        //To check product is in stock or not
-        public bool IsProductInStock(int StockQuantity)
-        {
-            //sql here
-            return StockQuantity > 0;
-        }
-
+    // Check if product has available stock
+    public bool IsProductInStock(int StockQuantity)
+    {
+        return StockQuantity > 0;
     }
 }

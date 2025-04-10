@@ -190,6 +190,7 @@ namespace LoanApp
         public List<Loan> GetAllLoan()
         {
             List<Loan> loans = new List<Loan>();
+            List<Loan> specificLoans = new List<Loan>(); // Temporary list for specific loan types
 
             using (SqlConnection connection = DBUtil.GetDBConn())
             {
@@ -201,100 +202,46 @@ namespace LoanApp
                     {
                         while (reader.Read())
                         {
-                            // Extract loan details
-                            int loanId = reader.GetInt32(reader.GetOrdinal("loan_id"));
-                            decimal principalAmount = reader.GetDecimal(reader.GetOrdinal("principal_amount"));
-                            decimal interestRate = reader.GetDecimal(reader.GetOrdinal("interest_rate"));
-                            int loanTerm = reader.GetInt32(reader.GetOrdinal("loan_term"));
-                            string loanType = reader.GetString(reader.GetOrdinal("loan_type"));
-                            string loanStatus = reader.GetString(reader.GetOrdinal("loan_status"));
-
-                            // Extract customer details
-                            int customerId = reader.GetInt32(reader.GetOrdinal("customer_id"));
-                            string name = reader.GetString(reader.GetOrdinal("name"));
-                            string emailAddress = reader.GetString(reader.GetOrdinal("email_address"));
-                            string phoneNumber = reader.GetString(reader.GetOrdinal("phone_number"));
-                            string address = reader.GetString(reader.GetOrdinal("address"));
-                            int creditScore = reader.GetInt32(reader.GetOrdinal("credit_score"));
-
-                            // Create customer object
-                            Customer customer = new Customer(customerId, name, emailAddress, phoneNumber, address, creditScore);
-
-                            // Create base loan object
-                            Loan loan = new Loan(loanId, customer, principalAmount, interestRate, loanTerm, loanType);
-                            loan.LoanStatus = loanStatus;
-
+                            // Extract loan and customer details as you're already doing
+                            // ...
+                            // Add base loan objects to loans list
                             loans.Add(loan);
                         }
                     }
                 }
 
-                // Fetch specific details for HomeLoan and CarLoan
-                foreach (Loan loan in loans)
+                // Create a new list for the specific loan types
+                for (int i = 0; i < loans.Count; i++)
                 {
+                    Loan loan = loans[i];
+
                     if (loan.LoanType == "HomeLoan")
                     {
-                        string homeLoanQuery = "SELECT * FROM HomeLoan WHERE loan_id = @LoanId";
-                        using (SqlCommand command = new SqlCommand(homeLoanQuery, connection))
-                        {
-                            command.Parameters.AddWithValue("@LoanId", loan.LoanId);
-                            using (SqlDataReader reader = command.ExecuteReader())
-                            {
-                                if (reader.Read())
-                                {
-                                    string propertyAddress = reader.GetString(reader.GetOrdinal("property_address"));
-                                    int propertyValue = reader.GetInt32(reader.GetOrdinal("property_value"));
-
-                                    HomeLoan homeLoan = new HomeLoan(
-                                        loan.LoanId, loan.Customer, loan.PrincipalAmount,
-                                        loan.InterestRate, loan.LoanTerm, propertyAddress, propertyValue
-                                    );
-                                    homeLoan.LoanStatus = loan.LoanStatus;
-
-                                    // Replace the base loan with the home loan
-                                    int index = loans.IndexOf(loan);
-                                    loans[index] = homeLoan;
-                                }
-                            }
-                        }
+                        // Get HomeLoan specific details
+                        // ...
+                        specificLoans.Add(homeLoan);
                     }
                     else if (loan.LoanType == "CarLoan")
                     {
-                        string carLoanQuery = "SELECT * FROM CarLoan WHERE loan_id = @LoanId";
-                        using (SqlCommand command = new SqlCommand(carLoanQuery, connection))
-                        {
-                            command.Parameters.AddWithValue("@LoanId", loan.LoanId);
-                            using (SqlDataReader reader = command.ExecuteReader())
-                            {
-                                if (reader.Read())
-                                {
-                                    string carModel = reader.GetString(reader.GetOrdinal("car_model"));
-                                    int carValue = reader.GetInt32(reader.GetOrdinal("car_value"));
-
-                                    CarLoan carLoan = new CarLoan(
-                                        loan.LoanId, loan.Customer, loan.PrincipalAmount,
-                                        loan.InterestRate, loan.LoanTerm, carModel, carValue
-                                    );
-                                    carLoan.LoanStatus = loan.LoanStatus;
-
-                                    // Replace the base loan with the car loan
-                                    int index = loans.IndexOf(loan);
-                                    loans[index] = carLoan;
-                                }
-                            }
-                        }
+                        // Get CarLoan specific details
+                        // ...
+                        specificLoans.Add(carLoan);
+                    }
+                    else
+                    {
+                        specificLoans.Add(loan);
                     }
                 }
             }
 
             // Print all loans
-            foreach (Loan loan in loans)
+            foreach (Loan loan in specificLoans)
             {
                 loan.PrintInformation();
                 Console.WriteLine("----------------------------");
             }
 
-            return loans;
+            return specificLoans;
         }
 
         public Loan GetLoanById(int loanId)

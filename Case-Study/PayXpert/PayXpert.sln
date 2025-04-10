@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.35906.104
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayXpert", "PayXpert.csproj", "{7AF3E950-5B3E-44DE-90E0-77AE2DE40119}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PayXpert.Test", "..\PayXpert.Test\PayXpert.Test.csproj", "{036719C1-C163-410B-8FBF-7FB67B5521D0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7AF3E950-5B3E-44DE-90E0-77AE2DE40119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7AF3E950-5B3E-44DE-90E0-77AE2DE40119}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7AF3E950-5B3E-44DE-90E0-77AE2DE40119}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7AF3E950-5B3E-44DE-90E0-77AE2DE40119}.Release|Any CPU.Build.0 = Release|Any CPU
+		{036719C1-C163-410B-8FBF-7FB67B5521D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{036719C1-C163-410B-8FBF-7FB67B5521D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{036719C1-C163-410B-8FBF-7FB67B5521D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{036719C1-C163-410B-8FBF-7FB67B5521D0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B572CA99-FE5C-4F9D-A7FA-4D32E7B38969}
+	EndGlobalSection
+EndGlobal
